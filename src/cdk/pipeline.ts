@@ -31,7 +31,8 @@ export class CasheyeBitcoinNodePipelineStack extends Stack {
 			buildCommands: [
 				`CDK_DEFAULT_ACCOUNT=${SecretValue.secretsManager('ACCOUNT_NUMBER')}`,
 				'npm run compile',
-				'npm run build'
+				'npm i -g parcel@1.12.3',
+				'parcel build ./src/handlers/*.ts -d build --target node --bundle-node-modules --no-source-maps'
 				],
 			testCommands: ['npm run test'],
 			synthCommand: 'npm run synth'
