@@ -1,12 +1,12 @@
 {
-	"name": "casheye-address-watcher",
+	"name": "casheye-bitcoin-node",
 	"version": "1.0.0",
 	"description": "",
 	"main": "dist/index.js",
 	"scripts": {
 		"compile": "tsc",
 		"build": "parcel build ./src/handlers/*.ts -d build --target node --bundle-node-modules --no-source-maps",
-		"test": "STAGE=test UNIT_TEST=true jest unit --forceExit",
+		"test": "STAGE=test NETWORK=regtest UNIT_TEST=true jest unit --forceExit",
 		"posttest": "rm -r ~/.bitcoin/regtest",
 		"synth": "cdk synth",
 		"integration": "jest integration",
@@ -16,15 +16,15 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/visionsofparadise/casheye-address-watcher.git"
+		"url": "git+https://github.com/visionsofparadise/casheye-bitcoin-node.git"
 	},
 	"keywords": [],
 	"author": "",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/visionsofparadise/casheye-address-watcher/issues"
+		"url": "https://github.com/visionsofparadise/casheye-bitcoin-node/issues"
 	},
-	"homepage": "https://github.com/visionsofparadise/casheye-address-watcher#readme",
+	"homepage": "https://github.com/visionsofparadise/casheye-bitcoin-node#readme",
 	"dependencies": {
 		"ajv": "^7.0.0",
 		"aws-sdk": "^2.799.0",
@@ -35,39 +35,39 @@
 		"cors": "^2.8.5",
 		"express": "^4.17.1",
 		"upick": "^1.0.0",
-		"xkore-lambda-helpers": "^1.1.57"
+		"xkore-lambda-helpers": "^1.1.76"
 	},
 	"devDependencies": {
 		"@abetomo/simply-imitated-sqs": "^1.1.3",
-		"@aws-cdk/aws-codepipeline": "^1.80.0",
-		"@aws-cdk/aws-codepipeline-actions": "^1.80.0",
-		"@aws-cdk/aws-dynamodb": "^1.80.0",
-		"@aws-cdk/aws-ec2": "^1.80.0",
-		"@aws-cdk/aws-events": "^1.80.0",
-		"@aws-cdk/aws-events-targets": "^1.80.0",
-		"@aws-cdk/aws-iam": "^1.80.0",
-		"@aws-cdk/aws-sqs": "^1.80.0",
-		"@aws-cdk/core": "^1.80.0",
-		"@aws-cdk/pipelines": "^1.80.0",
+		"@aws-cdk/aws-codepipeline": "^1.93.0",
+		"@aws-cdk/aws-codepipeline-actions": "^1.93.0",
+		"@aws-cdk/aws-dynamodb": "^1.93.0",
+		"@aws-cdk/aws-ec2": "^1.93.0",
+		"@aws-cdk/aws-events": "^1.93.0",
+		"@aws-cdk/aws-events-targets": "^1.93.0",
+		"@aws-cdk/aws-iam": "^1.93.0",
+		"@aws-cdk/aws-sqs": "^1.93.0",
+		"@aws-cdk/core": "^1.93.0",
+		"@aws-cdk/pipelines": "^1.93.0",
 		"@types/bitcore-lib": "^0.15.2",
 		"@types/body-parser": "^1.19.0",
 		"@types/cors": "^2.8.8",
 		"@types/express": "^4.17.8",
 		"@types/jest": "^26.0.15",
 		"@types/node": "^14.14.5",
-		"aws-cdk": "^1.80.0",
+		"aws-cdk": "^1.93.0",
 		"bitcore-lib": "^8.23.0",
-		"jest": "^26.6.0",
+		"jest": "^26.6.3",
 		"parcel-bundler": "^1.12.4",
 		"parcel-plugin-externals": "^0.5.2",
 		"tree-kill": "^1.2.2",
-		"ts-jest": "^26.4.1",
+		"ts-jest": "^26.5.3",
 		"ts-loader": "^8.0.6",
 		"ts-node": "^9.0.0",
 		"tslint": "^6.1.3",
 		"tslint-config-prettier": "^1.18.0",
 		"tslint-plugin-prettier": "^2.3.0",
-		"typescript": "^4.1.2",
+		"typescript": "^4.2.3",
 		"udelay": "^1.0.0"
 	},
 	"externals": [

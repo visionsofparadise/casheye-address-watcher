@@ -1,5 +1,5 @@
 import upick from 'upick';
-import { eventbridge, logger } from './helpers';
+import { eventbridge, logger, Network } from './helpers';
 import { jsonObjectSchemaGenerator } from 'xkore-lambda-helpers/dist/jsonObjectSchemaGenerator'
 import { Event } from 'xkore-lambda-helpers/dist/Event'
 import { rpc } from './rpc'
@@ -7,7 +7,8 @@ import { rpc } from './rpc'
 interface BtcAddressUsedDetail {
 	txid: string;
 	address: string;
-	confirmations: number
+	confirmations: number;
+	network: Network
 }
 
 export const btcAddressUsedEvent = new Event<BtcAddressUsedDetail>({
@@ -19,7 +20,8 @@ export const btcAddressUsedEvent = new Event<BtcAddressUsedDetail>({
 		properties: {
 			txid: { type: 'string' },
 			address: { type: 'string' },
-			confirmations: { type: 'number' }
+			confirmations: { type: 'number' },
+			network: { type: 'string' },
 		}
 	})
 });
@@ -35,7 +37,8 @@ export const btcConfirmationEvent = new Event<BtcConfirmationDetail>({
 		properties: {
 			txid: { type: 'string' },
 			address: { type: 'string' },
-			confirmations: { type: 'number' }
+			confirmations: { type: 'number' },
+			network: { type: 'string' },
 		}
 	})
 });
@@ -56,7 +59,10 @@ export const confirm = async () => {
 			const index = i * 10
 			const endIndex = index + 10
 			
-			await btcConfirmationEvent.send(txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => upick(tx, ['txid', 'address', 'confirmations'])))
+			await btcConfirmationEvent.send(txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => ({
+				network: process.env.NETWORK as Network,
+				...upick(tx, ['txid', 'address', 'confirmations'])
+			})))
 		}
 
 		await rpc.command(over6Txs.map(tx => ({
@@ -68,7 +74,10 @@ export const confirm = async () => {
 			const index = i * 10
 			const endIndex = index + 10
 			
-			await btcAddressUsedEvent.send(over6Txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => upick(tx, ['txid', 'address', 'confirmations'])))
+			await btcAddressUsedEvent.send(over6Txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => ({
+				network: process.env.NETWORK as Network,
+				...upick(tx, ['txid', 'address', 'confirmations'])
+			})))
 		}
 
 		if (txs.length === 100) setTimeout(() => page(pageNumber + 1), 1000)

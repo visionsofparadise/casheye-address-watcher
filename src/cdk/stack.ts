@@ -15,6 +15,7 @@ import { btcConfirmationEvent } from '../confirm';
 import { onAddressCreatedHandler } from '../handlers/onAddressCreated';
 import { DocumentationItems, Documented } from 'xkore-lambda-helpers/dist/cdk/DocumentationItems';
 import path from 'path'
+import { Network } from '../helpers';
 
 const prodEC2Config = {
 	storageSize: 400,
@@ -26,14 +27,21 @@ const testEC2Config = {
 	instanceSize: InstanceSize.SMALL
 }
 
-export class CasheyeAddressWatcherStage extends Stage {	
+const currencies = {
+	mainnet: ['BTC'],
+	testnet: ['BTC-testnet'],
+	regtest: ['BTC', 'BTC-testnet']
+}
+
+export class CasheyeBitcoinNodeStage extends Stage {	
 	public readonly instanceUrl?: CfnOutput;
 
-		constructor(scope: Construct, id: string, props: StageProps & { STAGE: string }) {
+		constructor(scope: Construct, id: string, props: StageProps & { STAGE: string; NETWORK: Network }) {
 		super(scope, id, props);
 
-		const stack = new CasheyeAddressWatcherStack(this, 'stack', {
+		const stack = new CasheyeBitcoinNodeStack(this, 'stack', {
 			STAGE: props.STAGE,
+			NETWORK: props.NETWORK,
 			env: {
 				account: process.env.CDK_DEFAULT_ACCOUNT,
 				region: 'us-east-1'
@@ -44,19 +52,19 @@ export class CasheyeAddressWatcherStage extends Stage {
 	}
 }
 
-const { initializeEventLambda } = masterLambda({
+const { initializeRuleLambda } = masterLambda({
 	runtime: Runtime.NODEJS_12_X,
 	code: Code.fromAsset(path.join(__dirname, '../../build')),
 })
 
-export class CasheyeAddressWatcherStack extends Stack {
+export class CasheyeBitcoinNodeStack extends Stack {
 	public readonly instanceUrl?: CfnOutput;
 
 	get availabilityZones(): string[] {
     return ['us-east-1a', 'us-east-1b', 'us-east-1c', 'us-east-1d', 'us-east-1e', 'us-east-1f'];
 	}
 	
-	constructor(scope: Construct, id: string, props: StackProps & { STAGE: string }) {
+	constructor(scope: Construct, id: string, props: StackProps & { STAGE: string; NETWORK: Network }) {
 		super(scope, id, props);
 		
 		const deploymentName = `${serviceName}-${props.STAGE}`;
@@ -132,16 +140,21 @@ pm2 save`
 		instance.connections.allowFromAnyIpv4(Port.tcp(4000))
 		instance.connections.allowFromAnyIpv4(Port.tcp(isProd ? 8333 : 18333))
 
-		EventBus.grantPutEvents(instance.grantPrincipal)
+		EventBus.grantAllPutEvents(instance.grantPrincipal)
 		queue.grantConsumeMessages(instance.grantPrincipal)
 
-		const createEventLambda = initializeEventLambda('casheye-' + props.STAGE)
+		const createRuleLambda = initializeRuleLambda('casheye-' + props.STAGE)
 
-		const onAddressCreated = createEventLambda(this, 'onAddressCreated', {
-			EventLambdaHandler: onAddressCreatedHandler,
+		const onAddressCreated = createRuleLambda(this, 'onAddressCreated', {
+			RuleLambdaHandler: onAddressCreatedHandler,
 			environment: {
 				STAGE: props.STAGE,
 				QUEUE_URL: queue.queueUrl
+			},
+			eventPattern: {
+				detail: {
+					currency: currencies[props.NETWORK]
+				}
 			}
 		})
 

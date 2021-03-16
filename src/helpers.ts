@@ -30,4 +30,6 @@ export const logger = spawnLogger({
 	offValue: 'prod'
 });
 
+export type Network = 'mainnet' | 'testnet' | 'regtest'
+
 
