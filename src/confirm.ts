@@ -1,5 +1,5 @@
 import upick from 'upick';
-import { eventbridge, logger, Network } from './helpers';
+import { eventbridge, logger, Currency, currencies, Network } from './helpers';
 import { jsonObjectSchemaGenerator } from 'xkore-lambda-helpers/dist/jsonObjectSchemaGenerator'
 import { Event } from 'xkore-lambda-helpers/dist/Event'
 import { rpc } from './rpc'
@@ -8,7 +8,7 @@ interface BtcAddressUsedDetail {
 	txid: string;
 	address: string;
 	confirmations: number;
-	network: Network
+	currency: Currency
 }
 
 export const btcAddressUsedEvent = new Event<BtcAddressUsedDetail>({
@@ -21,7 +21,7 @@ export const btcAddressUsedEvent = new Event<BtcAddressUsedDetail>({
 			txid: { type: 'string' },
 			address: { type: 'string' },
 			confirmations: { type: 'number' },
-			network: { type: 'string' },
+			currency: { type: 'string' },
 		}
 	})
 });
@@ -38,7 +38,7 @@ export const btcConfirmationEvent = new Event<BtcConfirmationDetail>({
 			txid: { type: 'string' },
 			address: { type: 'string' },
 			confirmations: { type: 'number' },
-			network: { type: 'string' },
+			currency: { type: 'string' },
 		}
 	})
 });
@@ -60,7 +60,7 @@ export const confirm = async () => {
 			const endIndex = index + 10
 			
 			await btcConfirmationEvent.send(txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => ({
-				network: process.env.NETWORK as Network,
+				currency: currencies[process.env.NETWORK! as Network][0] as Currency,
 				...upick(tx, ['txid', 'address', 'confirmations'])
 			})))
 		}
@@ -75,7 +75,7 @@ export const confirm = async () => {
 			const endIndex = index + 10
 			
 			await btcAddressUsedEvent.send(over6Txs.slice(index, endIndex > txs.length ? txs.length : endIndex).map(tx => ({
-				network: process.env.NETWORK as Network,
+				currency: currencies[process.env.NETWORK! as Network][0] as Currency,
 				...upick(tx, ['txid', 'address', 'confirmations'])
 			})))
 		}

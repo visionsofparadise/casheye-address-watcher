@@ -1,12 +1,12 @@
 import { Event } from 'xkore-lambda-helpers/dist/Event';
 import { jsonObjectSchemaGenerator } from 'xkore-lambda-helpers/dist/jsonObjectSchemaGenerator';
-import { logger, eventbridge, Network } from './helpers';
+import { logger, eventbridge, Currency, currencies, Network } from './helpers';
 import { rpc } from './rpc'
 import day from 'dayjs'
 
 interface BtcAddressWatchingDetail {
 	pubKey: string;
-	network: Network
+	currency: Currency
 }
 
 export const btcAddressWatchingEvent = new Event<BtcAddressWatchingDetail>({
@@ -17,7 +17,7 @@ export const btcAddressWatchingEvent = new Event<BtcAddressWatchingDetail>({
 		description: 'Triggered when an address is being watched for transactions and confirmations.',
 		properties: {
 			pubKey: { type: 'string' },
-			network: { type: 'string' },
+			currency: { type: 'string' },
 		}
 	})
 });
@@ -32,7 +32,7 @@ export const btcAddressExpiredEvent = new Event<BtcAddressExpiredDetail>({
 		description: 'Triggered when an address with no transactions expires and stops being watched.',
 		properties: {
 			pubKey: { type: 'string' },
-			network: { type: 'string' },
+			currency: { type: 'string' },
 		}
 	})
 });
@@ -63,7 +63,7 @@ export const watchAddresses = async (batch: Array<{pubKey: string, expiresAt: nu
 					logger.info('address expiring ' + pubKey);
 	
 					return rpc.setLabel(pubKey, 'expired').then(() => btcAddressExpiredEvent.send({
-						network: process.env.NETWORK as Network,
+						currency: currencies[process.env.NETWORK! as Network][0] as Currency,
 						pubKey
 					})
 					);
@@ -79,7 +79,7 @@ export const watchAddresses = async (batch: Array<{pubKey: string, expiresAt: nu
 	}
 
 	await btcAddressWatchingEvent.send(batch.map(item => ({
-		network: process.env.NETWORK as Network,
+		currency: currencies[process.env.NETWORK! as Network][0] as Currency,
 		pubKey: item.pubKey
 	})))
 

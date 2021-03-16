@@ -1,13 +1,13 @@
 import { Event } from 'xkore-lambda-helpers/dist/Event';
 import { jsonObjectSchemaGenerator } from 'xkore-lambda-helpers/dist/jsonObjectSchemaGenerator';
-import { eventbridge, logger, Network } from './helpers';
+import { eventbridge, logger, Currency, currencies, Network } from './helpers';
 import { rpc } from './rpc'
 
 interface GetTransactionResponse {
 	txid: string;
 	confirmations: number;
 	amount: number;
-	network: Network
+	currency: Currency
 	details: Array<{
 		address: string;
 		category: string;
@@ -27,7 +27,7 @@ export const btcTxDetectedEvent = new Event<BtcTxDetectedDetail>({
 			txid: { type: 'string' },
 			confirmations: { type: 'number' },
 			amount: { type: 'number' },
-			network: { type: 'string' },
+			currency: { type: 'string' },
 			details: { type: 'array', items: jsonObjectSchemaGenerator<BtcTxDetectedDetail['details'][number]>({ 
 				properties: {
 					address: { type: 'string' },
@@ -53,7 +53,7 @@ export const txDetected = async (txId: string) => {
 
 		await btcTxDetectedEvent.send({
 			...tx,
-			network: process.env.NETWORK as Network
+			currency: currencies[process.env.NETWORK! as Network][0] as Currency,
 		})
 
 		return

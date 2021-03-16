@@ -15,7 +15,7 @@ import { btcConfirmationEvent } from '../confirm';
 import { onAddressCreatedHandler } from '../handlers/onAddressCreated';
 import { DocumentationItems, Documented } from 'xkore-lambda-helpers/dist/cdk/DocumentationItems';
 import path from 'path'
-import { Network } from '../helpers';
+import { currencies, Network } from '../helpers';
 
 const prodEC2Config = {
 	storageSize: 400,
@@ -25,12 +25,6 @@ const prodEC2Config = {
 const testEC2Config = {
 	storageSize: 20,
 	instanceSize: InstanceSize.SMALL
-}
-
-const currencies = {
-	mainnet: ['BTC'],
-	testnet: ['BTC-testnet'],
-	regtest: ['BTC', 'BTC-testnet']
 }
 
 export class CasheyeBitcoinNodeStage extends Stage {	
